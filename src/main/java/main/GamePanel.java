@@ -8,8 +8,8 @@ import java.awt.*;
 import java.util.Random;
 
 public class GamePanel extends JPanel {
-    private int xDelta = 100, yDelta = 100;
     private float xDelta = 100, yDelta = 100;
+    private float xDir = 0.3f, yDir=0.3f;
     private Color color = new Color(150,20,90);
     private Random random;
 
