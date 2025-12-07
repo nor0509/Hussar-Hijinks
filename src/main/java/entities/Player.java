@@ -5,9 +5,13 @@ import utils.PlayerAction;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.HashMap;
+import java.util.Objects;
 
+import static java.lang.module.ModuleDescriptor.read;
 import static utils.PlayerAction.*;
 
 public class Player extends Entity{
@@ -15,7 +19,7 @@ public class Player extends Entity{
     private int aniTick, aniIndex, aniSpeed =18;
     private PlayerAction playerAction = IDLE;
     private boolean moving = false, attacking = false;
-    private float playerSpeed = 3;
+    private final float playerSpeed = 2;
     private boolean left, up, right, down;
 
     public Player(float posX, float posY) {
@@ -32,7 +36,7 @@ public class Player extends Entity{
     }
 
     public void render(Graphics g){
-        g.drawImage(animations[playerAction.getIndex()][aniIndex], (int)posX, (int)posY, 256, 160, null);
+        g.drawImage(animations[playerAction.getIndex()][aniIndex], (int)posX, (int)posY, 480, 320, null);
     }
 
     private void setAnimation() {
@@ -70,26 +74,25 @@ public class Player extends Entity{
 
 
     private void loadAnimations() {
-            InputStream is = getClass().getResourceAsStream("/player_sprites.png");
-            try{
+        animations = new BufferedImage[PlayerAction.values().length][];
+        try{
+            for(PlayerAction playerAction : PlayerAction.values()){
+
+                animations[playerAction.getIndex()] = new BufferedImage[playerAction.getSpriteAmount()];
+                InputStream is = getClass().getResourceAsStream(playerAction.getPath());
+                if(is == null){
+                    System.err.println("File not found: " + playerAction.getPath());
+                    continue;
+                }
                 BufferedImage img = ImageIO.read(is);
-                animations = new BufferedImage[PlayerAction.values().length][6];
-                for(PlayerAction action : PlayerAction.values()){
-                    int index = action.getIndex();
-                    int spriteAmount = action.getSpriteAmount();
-                    for(int sprite = 0; sprite<spriteAmount; sprite++){
-                        animations[index][sprite] = img.getSubimage(sprite*64, index*40, 64, 40);
-                    }
+                for(int spriteNumber = 0; spriteNumber < playerAction.getSpriteAmount(); spriteNumber++){
+                    animations[playerAction.getIndex()][spriteNumber] = img.getSubimage(120*spriteNumber, 0, 120, 80);
+
                 }
-            } catch(IOException e){
-                e.printStackTrace();
-            } finally {
-                try {
-                    is.close();
-                } catch (IOException e){
-                    e.printStackTrace();
-                }
-            }
+        }
+        } catch (IOException e){
+            System.out.println("Nie można wczytać obrazu: " + playerAction.getPath());
+        }
 
     }
 
